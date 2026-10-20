@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e1c">
+<title>Legend Recognizer — Live Emotion, Face &amp; Object Recognition</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0e1c;--panel:#131833;--panel2:#1a2142;--line:#2b3562;--text:#f1f3ff;--muted:#a3abd0;--gold:#f6c453;--gold2:#ff9f5a;--teal:#4fe3c1;--red:#ff7088;--blue:#6ea8ff}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:radial-gradient(1000px 500px at 15% -10%,#25205a 0,transparent 60%),radial-gradient(800px 400px at 100% 0,#10304a 0,transparent 55%),var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh}
+button,select{font:inherit;color:var(--text)}:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+header{max-width:1180px;margin:auto;padding:20px 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:grid;place-items:center;font-size:24px;box-shadow:0 6px 24px #f6c45344}
+h1{margin:0;font:700 clamp(1.5rem,4.5vw,2.2rem)/1.05 "Iowan Old Style",Georgia,serif;letter-spacing:-.01em}
+.tag{margin:3px 0 0;color:var(--muted);font-size:.88rem}
+.pill{font-size:.78rem;border:1px solid var(--line);padding:5px 11px;border-radius:99px;color:var(--muted);white-space:nowrap}.pill.live{color:var(--teal);border-color:#2a7a6b;background:#4fe3c114}
+.wrap{max-width:1180px;margin:auto;padding:0 14px 24px;display:grid;gap:14px}
+.grid{display:grid;gap:14px;align-items:start}
+.card{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}
+.ch{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 15px;border-bottom:1px solid var(--line)}h2{font-size:1rem;margin:0;font-weight:650}
+.body{padding:14px}.note{color:var(--muted);font-size:.8rem;margin:0;padding:0 15px 13px}
+.camera{position:relative;background:#04050d;aspect-ratio:4/3;max-height:72vh;width:100%;overflow:hidden}
+video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}video.mirror{transform:scaleX(-1)}
+#overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.placeholder{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;text-align:center;color:var(--muted);padding:24px;gap:8px}.placeholder b{font-size:1.1rem;color:var(--text)}.placeholder i{font-size:2.6rem;font-style:normal}
+.cam-badge{position:absolute;left:10px;top:10px;background:#0b0e1cb8;border:1px solid var(--line);border-radius:99px;padding:4px 10px;font-size:.78rem;backdrop-filter:blur(6px)}
+.controls{padding:14px;display:grid;gap:12px}.btns{display:flex;gap:8px;flex-wrap:wrap}
+button,select{border-radius:10px;border:1px solid var(--line);padding:9px 13px;background:#202a55}
+button{cursor:pointer;font-weight:600}button:hover:not(:disabled){border-color:var(--gold)}button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:linear-gradient(100deg,var(--gold),var(--gold2));border:0;color:#2a1700}
+.opts{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;color:var(--muted);font-size:.9rem}.opts label{display:flex;gap:7px;align-items:center;cursor:pointer}
+input[type=checkbox]{accent-color:var(--gold);width:17px;height:17px}
+.status{background:#090c1c;border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--muted);font-size:.87rem;overflow-wrap:anywhere}.status b{color:var(--gold)}.status.err b{color:var(--red)}.status.ok b{color:var(--teal)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat{padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:14px}.stat small{color:var(--muted);font-size:.76rem}.stat strong{display:block;font-size:1.35rem;margin-top:2px}
+.face{padding:14px 0;border-bottom:1px solid var(--line)}.face:first-child{padding-top:0}.face:last-child{border:0;padding-bottom:0}
+.hero{display:flex;align-items:center;gap:14px}.emoji{font-size:3.1rem;line-height:1;width:64px;text-align:center}.hero h3{margin:0;font-size:1.4rem}.hero small{color:var(--muted)}
+.bars{display:grid;gap:6px;margin:12px 0}.bar{display:grid;grid-template-columns:96px 1fr 40px;gap:8px;align-items:center;font-size:.84rem}.bar span:last-child{text-align:right;color:var(--muted)}
+.track{height:8px;background:#0c1030;border-radius:9px;overflow:hidden}.track i{display:block;height:100%;border-radius:9px;transition:width .25s}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.chip{font-size:.8rem;padding:4px 10px;border-radius:99px;background:#f6c4531f;border:1px solid #f6c45355;color:var(--gold)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px 12px;font-size:.82rem;color:var(--muted)}.meta b{color:var(--text);font-weight:600}
+.empty{color:var(--muted);font-size:.9rem;padding:4px 0}
+.obj{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:9px 0;border-bottom:1px solid var(--line)}.obj:last-child{border:0}.obj .track{grid-column:1/-1;margin-top:4px}.obj em{font-style:normal;color:var(--gold)}.obj small{color:var(--muted)}
+#timeline{width:100%;height:34px;border-radius:8px;background:#0c1030;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;font-size:.8rem;color:var(--muted)}.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--c);margin-right:5px}
+footer{max-width:1180px;margin:auto;padding:0 16px 24px;color:var(--muted);font-size:.8rem}
+.two{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:900px){.grid{grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr)}.two{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}.bar{grid-template-columns:84px 1fr 38px}.btns button{flex:1 1 auto}}
+.camera:fullscreen{max-height:none;aspect-ratio:auto;height:100%}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo" aria-hidden="true">👁</div><div><h1>Legend Recognizer</h1><p class="tag">Live emotions, face analysis and object recognition, right in your browser.</p></div></div>
+  <span id="livePill" class="pill">Camera off</span>
+</header>
+<main class="wrap">
+  <div class="grid">
+    <section class="card">
+      <div class="ch"><h2>Live camera</h2><span class="pill" id="modelPill">Models not loaded</span></div>
+      <div class="camera" id="cameraBox">
+        <video id="video" autoplay muted playsinline class="mirror"></video><canvas id="overlay"></canvas>
+        <div id="placeholder" class="placeholder"><i>🎥</i><b>Your camera preview appears here</b><span>Tap Start camera and allow access.</span></div>
+        <div class="cam-badge" id="camBadge" hidden></div>
+      </div>
+      <div class="controls">
+        <div class="btns">
+          <button class="primary" id="startBtn">▶ Start camera</button>
+          <button id="stopBtn" disabled>■ Stop</button>
+          <button id="flipBtn" disabled>⇄ Switch camera</button>
+          <button id="snapBtn" disabled>📷 Snapshot</button>
+          <button id="fsBtn" disabled>⛶ Fullscreen</button>
+          <button id="repBtn">↓ Report</button>
+        </div>
+        <div class="opts">
+          <label><input type="checkbox" id="faceToggle" checked> Faces &amp; emotions</label>
+          <label><input type="checkbox" id="objectToggle" checked> Objects</label>
+          <label><input type="checkbox" id="meshToggle" checked> Face outline</label>
+          <label>Mode <select id="speed" aria-label="Performance mode"><option value="fast">Balanced</option><option value="accurate">Most accurate</option><option value="light">Low power</option></select></label>
+        </div>
+        <div id="status" class="status" role="status">Ready. The camera starts only when you tap Start.</div>
+      </div>
+    </section>
+    <div style="display:grid;gap:14px">
+      <section class="card"><div class="ch"><h2>Live emotions</h2><span class="pill">Per face</span></div><div id="faceResults" class="body"><div class="empty">Start the camera to see emotions.</div></div><p class="note">Emotions are estimated from facial muscle movement. They show expression, not true feelings. Crying is detected from the expression and cannot confirm tears. Nobody is identified.</p></section>
+    </div>
+  </div>
+  <section class="stats" aria-label="Live summary">
+    <div class="stat"><small>Faces</small><strong id="faceCount">0</strong></div>
+    <div class="stat"><small>Objects</small><strong id="objectCount">0</strong></div>
+    <div class="stat"><small>Face FPS</small><strong id="fps">0</strong></div>
+    <div class="stat"><small>Last update</small><strong id="updated">—</strong></div>
+  </section>
+  <div class="two">
+    <section class="card"><div class="ch"><h2>Objects in view</h2><span class="pill">COCO-SSD</span></div><div id="objectResults" class="body"><div class="empty">No objects detected yet.</div></div><p class="note">Recognizes 80 common object types, not literally every object.</p></section>
+    <section class="card"><div class="ch"><h2>Mood timeline</h2><span class="pill">Face 1 · last 60 s</span></div><div class="body"><canvas id="timeline" width="600" height="34"></canvas><div class="legend" id="legend"></div><div id="summary" class="chips"></div></div></section>
+  </div>
+</main>
+<footer>Everything runs on your device and no video is uploaded. Model files download from the internet on first use. Stop the camera when finished to save battery.</footer>
+<script>
+(() => {
+'use strict';
+const $=id=>document.getElementById(id),video=$('video'),cv=$('overlay'),ctx=cv.getContext('2d'),tlc=$('timeline'),tctx=tlc.getContext('2d');
+const S={stream:null,running:false,starting:false,facing:'user',fl:null,coco:null,vm:null,conn:null,faces:[],objs:[],st:[],lastT:0,lastVT:-1,frames:0,fpsAt:0,uiAt:0,tlAt:0,tl:[],sess:{},d:1,cw:0,ch:0,raf:0,ot:0};
+const CORE={happy:['😊','Happy','#7be3ac'],sad:['😢','Sad','#6ea8ff'],angry:['😠','Angry','#ff6b6b'],surprised:['😲','Surprised','#ffd166'],fearful:['😨','Fearful','#b69cff'],disgusted:['🤢','Disgusted','#a3d95b'],neutral:['😐','Neutral','#9aa3c7']};
+const EXTRA={crying:['😭','Crying','#5aa2ff'],laughing:['😂','Laughing','#5eead4'],sleepy:['😴','Eyes closed / sleepy','#8892d8'],winking:['😉','Winking','#f6c453'],yawning:['🥱','Yawning','#c4a5ff'],tongue:['😛','Tongue out','#ff9ec4'],kiss:['😘','Kissing','#ff7aa8'],smirk:['😏','Smirking','#ffb86b'],confused:['🤨','Confused','#d6c37a'],puffed:['😮','Cheeks puffed','#8fd0ff']};
+const META={...CORE,...EXTRA};
+const c01=x=>Math.max(0,Math.min(1,x)),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function say(msg,kind='info'){const e=$('status');e.className='status '+(kind==='error'?'err':kind==='ok'?'ok':'');e.innerHTML='<b>'+(kind==='error'?'Problem':kind==='ok'?'Ready':'Status')+':</b> '+esc(msg);}
+function setPill(t,live){const p=$('livePill');p.textContent=t;p.classList.toggle('live',!!live);}
+const loadScript=src=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=res;s.onerror=()=>rej(new Error('Could not load '+src.split('/').slice(-1)[0]+'. Check your internet connection.'));document.head.appendChild(s);});
+async function loadModels(){
+  if(!window.tf){say('Loading TensorFlow…');await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js');}
+  if(!window.cocoSsd){say('Loading object detector…');await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js');}
+  if(!S.vm){say('Loading face analysis library…');S.vm=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm');}
+  if(!S.fl){
+    say('Downloading face model (first time can take a moment)…');
+    const files=await S.vm.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+    const mk=d=>S.vm.FaceLandmarker.createFromOptions(files,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',delegate:d},runningMode:'VIDEO',numFaces:5,outputFaceBlendshapes:true});
+    try{S.fl=await mk('GPU');}catch(e){console.warn('GPU unavailable, using CPU',e);S.fl=await mk('CPU');}
+    S.conn=S.vm.FaceLandmarker.FACE_LANDMARKS_CONTOURS||null;
+  }
+  if(!S.coco){say('Loading object model…');await window.tf.ready();S.coco=await window.cocoSsd.load({base:'lite_mobilenet_v2'});}
+  $('modelPill').textContent='Models ready';say('Models loaded. Live analysis is running.','ok');
+}
+async function openCam(){
+  if(S.stream)S.stream.getTracks().forEach(t=>t.stop());
+  S.stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:S.facing},width:{ideal:1280},height:{ideal:720}}});
+  video.srcObject=S.stream;await video.play();
+  video.classList.toggle('mirror',S.facing==='user');$('placeholder').hidden=true;S.lastVT=-1;S.st=[];S.faces=[];
+  $('camBadge').hidden=false;$('camBadge').textContent=S.facing==='user'?'Front camera':'Back camera';sizeCanvas();
+}
+async function start(){
+  if(S.running||S.starting)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){say('Camera is unavailable. Open this page over HTTPS (or localhost) in a modern browser.','error');return;}
+  S.starting=true;$('startBtn').disabled=true;say('Requesting camera permission…');
+  try{
+    await openCam();S.running=true;S.tl=[];S.sess={};
+    ['stopBtn','flipBtn','snapBtn','fsBtn'].forEach(i=>$(i).disabled=false);setPill('Camera on',true);
+    say('Camera started. Preparing AI models…');
+    await loadModels();
+    if(!S.running)return;
+    S.fpsAt=performance.now();S.frames=0;S.raf=requestAnimationFrame(loop);objLoop();
+  }catch(e){
+    console.error(e);const n=e&&e.name;
+    stop(false);say((n==='NotAllowedError'?'Camera permission was denied. Allow camera access in your browser site settings, then try again.':n==='NotFoundError'?'No camera was found on this device.':n==='NotReadableError'?'The camera is busy in another app. Close it and try again.':'Startup failed: '+(e&&e.message||e)),'error');
+  }finally{S.starting=false;}
+}
+function stop(msg=true){
+  S.running=false;cancelAnimationFrame(S.raf);clearTimeout(S.ot);
+  if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}
+  video.srcObject=null;S.faces=[];S.objs=[];ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
+  $('placeholder').hidden=false;$('camBadge').hidden=true;$('startBtn').disabled=false;
+  ['stopBtn','flipBtn','snapBtn','fsBtn'].forEach(i=>$(i).disabled=true);setPill('Camera off');
+  $('fps').textContent='0';$('faceCount').textContent='0';$('objectCount').textContent='0';
+  if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+  if(msg)say('Camera stopped. Tap Start camera to run again.');
+}
+async function flip(){
+  if(!S.running||S.starting)return;const prev=S.facing;S.facing=prev==='user'?'environment':'user';$('flipBtn').disabled=true;
+  try{await openCam();say('Switched to the '+(S.facing==='user'?'front':'back')+' camera.','ok');}
+  catch(e){S.facing=prev;try{await openCam();}catch(_){}say('Could not switch camera: '+(e.message||e.name),'error');}
+  $('flipBtn').disabled=false;
+}
+function sizeCanvas(){const r=$('cameraBox').getBoundingClientRect();S.d=Math.min(window.devicePixelRatio||1,2);S.cw=r.width;S.ch=r.height;cv.width=Math.round(r.width*S.d);cv.height=Math.round(r.height*S.d);draw();}
+/* ---------- Face maths ---------- */
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),LE=[33,160,158,133,153,144],RE=[362,385,387,263,373,380];
+function eyeOpen(p,idx){const q=idx.map(i=>p[i]),w=dist(q[0],q[3]);if(w<1e-5)return 0;return Math.max(0,Math.min(100,Math.round(((dist(q[1],q[5])+dist(q[2],q[4]))/(2*w)-.08)/.2*100)));}
+function analyze(s,st,dt){
+  const g=n=>s[n]||0,av=n=>(g(n+'Left')+g(n+'Right'))/2,mx=n=>Math.max(g(n+'Left'),g(n+'Right'));
+  const smile=av('mouthSmile'),frown=av('mouthFrown'),bd=av('browDown'),inner=g('browInnerUp'),bu=Math.max(inner,av('browOuterUp')),wide=av('eyeWide'),jaw=g('jawOpen'),sneer=av('noseSneer'),sq=av('eyeSquint'),press=av('mouthPress'),stretch=av('mouthStretch'),blink=av('eyeBlink');
+  const core={
+    happy:c01(smile*1.3+av('cheekSquint')*.25-frown*.5),
+    sad:c01((frown*1.2+inner*.6+g('mouthShrugLower')*.3+press*.15)*1.1-smile),
+    angry:c01(bd*1.15+sneer*.35+sq*.3+press*.3+g('jawForward')*.1-inner*.3-smile*.6),
+    surprised:c01((jaw*.55+bu*.6+wide*.7)*1.05-bd*.6),
+    fearful:c01(inner*.5+wide*.5+stretch*.7+av('mouthLowerDown')*.1-smile-bd*.3),
+    disgusted:c01(sneer*1.1+av('mouthUpperUp')*.5+g('mouthShrugUpper')*.3-smile*.4)
+  };
+  const top=Math.max(...Object.values(core));core.neutral=c01(1-top*2);
+  const eyesLow=Math.max(sq,blink*.8),lr=Math.abs(g('eyeBlinkLeft')-g('eyeBlinkRight'));
+  st.closed=blink>.6?(st.closed||0)+dt:0;
+  const ex={
+    crying:core.sad>.25&&(jaw>.12||stretch>.2||av('mouthLowerDown')>.2)?c01(core.sad*.7+eyesLow*.35+stretch*.4+jaw*.2):0,
+    laughing:smile>.4&&jaw>.25?c01(smile*.6+jaw*.6+sq*.3):0,
+    sleepy:st.closed>1200?c01(.6+st.closed/10000):0,
+    winking:lr>.45&&Math.min(g('eyeBlinkLeft'),g('eyeBlinkRight'))<.35?c01(lr*1.2):0,
+    yawning:jaw>.5&&smile<.3?c01(jaw*.9+eyesLow*.3-.1):0,
+    tongue:g('tongueOut')>.3?c01(g('tongueOut')*1.5):0,
+    kiss:g('mouthPucker')>.4?c01(g('mouthPucker')*1.3):0,
+    smirk:Math.abs(g('mouthSmileLeft')-g('mouthSmileRight'))>.25&&mx('mouthSmile')>.3?c01(Math.abs(g('mouthSmileLeft')-g('mouthSmileRight'))*1.6):0,
+    confused:Math.abs(g('browOuterUpLeft')-g('browOuterUpRight'))*1.2+Math.abs(g('browDownLeft')-g('browDownRight'))>.3?c01((Math.abs(g('browOuterUpLeft')-g('browOuterUpRight'))*1.2+Math.abs(g('browDownLeft')-g('browDownRight')))*1.1):0,
+    puffed:g('cheekPuff')>.3?c01(g('cheekPuff')*1.5):0
+  };
+  let key='neutral',val=core.neutral;
+  for(const k in core)if(k!=='neutral'&&core[k]>.33&&core[k]>val){key=k;val=core[k];}
+  if(ex.crying>=.5){key='crying';val=ex.crying;}
+  else if(ex.laughing>=.55){key='laughing';val=ex.laughing;}
+  else if(key==='neutral'){let b=0,bk=null;for(const k in ex)if(ex[k]>=.6&&ex[k]>b){b=ex[k];bk=k;}if(bk){key=bk;val=b;}}
+  // Stabilise: only change the label after 3 matching frames.
+  if(key===st.cur){st.cand=null;st.n=0;}else if(key===st.cand){if(++st.n>=3){st.cur=key;st.cand=null;st.n=0;}}else{st.cand=key;st.n=1;if(!st.cur){st.cur=key;}}
+  const shown=st.cur||key;
+  return{core,ex,key:shown,conf:Math.round(c01(shown===key?val:(core[shown]||ex[shown]||0))*100),smile,blink,jaw,brow:bu};
+}
+/* ---------- Loops ---------- */
+function loop(now){
+  if(!S.running)return;S.raf=requestAnimationFrame(loop);
+  const gap={light:240,fast:100,accurate:40}[$('speed').value];
+  if(now-S.lastT<gap||video.readyState<2||!video.videoWidth||video.currentTime===S.lastVT)return;
+  const dt=Math.min(now-S.lastT,500);S.lastT=now;S.lastVT=video.currentTime;
+  if(!$('faceToggle').checked){if(S.faces.length||!S.paused){S.faces=[];S.paused=true;draw();$('faceResults').innerHTML='<div class="empty">Face analysis is turned off.</div>';$('faceCount').textContent='0';}return;}
+  S.paused=false;
+  try{processFaces(S.fl.detectForVideo(video,performance.now()),now,dt);}
+  catch(e){console.error(e);say('Face analysis error: '+(e.message||e),'error');return;}
+  S.frames++;if(now-S.fpsAt>=1000){$('fps').textContent=Math.round(S.frames*1000/(now-S.fpsAt));S.frames=0;S.fpsAt=now;}
+}
+function processFaces(res,now,dt){
+  const lm=res.faceLandmarks||[],bs=res.faceBlendshapes||[];S.st.length=lm.length;S.faces=[];
+  lm.forEach((p,i)=>{
+    const st=S.st[i]||(S.st[i]={sh:{}});const cats=(bs[i]&&bs[i].categories)||[];
+    cats.forEach(c=>{const o=st.sh[c.categoryName];st.sh[c.categoryName]=o===undefined?c.score:o+(c.score-o)*.5;});
+    const a=analyze(st.sh,st,dt);let x0=1,y0=1,x1=0,y1=0;
+    for(const q of p){if(q.x<x0)x0=q.x;if(q.x>x1)x1=q.x;if(q.y<y0)y0=q.y;if(q.y>y1)y1=q.y;}
+    S.faces.push({p,a,box:[x0,y0,x1,y1],l:eyeOpen(p,LE),r:eyeOpen(p,RE)});
+    if(i===0){S.sess[a.key]=(S.sess[a.key]||0)+dt;if(now-S.tlAt>500){S.tlAt=now;S.tl.push(a.key);if(S.tl.length>120)S.tl.shift();drawTimeline();}}
+  });
+  $('faceCount').textContent=lm.length;$('updated').textContent=new Date().toLocaleTimeString();
+  draw();
+  if(now-S.uiAt>200){S.uiAt=now;renderFaces();}
+}
+function objLoop(){
+  if(!S.running)return;const m=$('speed').value,gap=m==='light'?800:m==='accurate'?250:450;
+  const next=()=>{if(S.running)S.ot=setTimeout(objLoop,gap);};
+  if(!$('objectToggle').checked||!S.coco||video.readyState<2){if(!$('objectToggle').checked&&S.objs.length){S.objs=[];draw();renderObjects();}return next();}
+  S.coco.detect(video,m==='accurate'?30:20,.45).then(r=>{S.objs=r;renderObjects();draw();}).catch(e=>{console.error(e);say('Object detection error: '+(e.message||e),'error');}).finally(next);
+}
+/* ---------- Drawing ---------- */
+function geom(){const vw=video.videoWidth,vh=video.videoHeight,s=Math.min(S.cw/vw,S.ch/vh),dw=vw*s,dh=vh*s;return{ox:(S.cw-dw)/2,oy:(S.ch-dh)/2,dw,dh,vw,vh};}
+function pill(text,x,y,color){
+  ctx.font='700 13px system-ui,sans-serif';const w=ctx.measureText(text).width+16,h=24;x=Math.max(2,Math.min(x,S.cw-w-2));y=Math.max(2,y);
+  ctx.fillStyle=color;ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,8):ctx.rect(x,y,w,h);ctx.fill();
+  ctx.fillStyle='#10132a';ctx.textBaseline='middle';ctx.fillText(text,x+8,y+h/2+1);
+}
+function draw(){
+  ctx.setTransform(S.d,0,0,S.d,0,0);ctx.clearRect(0,0,S.cw,S.ch);
+  if(!S.running||!video.videoWidth)return;
+  const g=geom(),m=S.facing==='user',X=n=>g.ox+(m?1-n:n)*g.dw,Y=n=>g.oy+n*g.dh;
+  S.faces.forEach(f=>{
+    const col=(META[f.a.key]||CORE.neutral)[2];
+    if($('meshToggle').checked&&S.conn){ctx.strokeStyle=col+'aa';ctx.lineWidth=1.2;ctx.beginPath();for(const c of S.conn){const a=f.p[c.start],b=f.p[c.end];if(a&&b){ctx.moveTo(X(a.x),Y(a.y));ctx.lineTo(X(b.x),Y(b.y));}}ctx.stroke();}
+    const xa=X(f.box[0]),xb=X(f.box[2]),x=Math.min(xa,xb),w=Math.abs(xb-xa),y=Y(f.box[1]),h=Y(f.box[3])-y;
+    ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.strokeRect(x,y,w,h);
+    const mt=META[f.a.key];pill(mt[0]+' '+mt[1]+' '+f.a.conf+'%',x,y>30?y-28:y+4,col);
+  });
+  S.objs.forEach(o=>{
+    const [bx,by,bw,bh]=o.bbox,xa=X(bx/g.vw),xb=X((bx+bw)/g.vw),x=Math.min(xa,xb),w=Math.abs(xb-xa),y=Y(by/g.vh),h=bh/g.vh*g.dh;
+    ctx.strokeStyle='#f6c453';ctx.lineWidth=2;ctx.setLineDash([7,4]);ctx.strokeRect(x,y,w,h);ctx.setLineDash([]);
+    pill(o.class+' '+Math.round(o.score*100)+'%',x,y+h+4>S.ch-28?y+4:y+h+4,'#f6c453');
+  });
+}
+function drawTimeline(){
+  const W=tlc.width,H=tlc.height;tctx.clearRect(0,0,W,H);const n=60,tl=S.tl.slice(-n*2),bw=W/(n*2);
+  tl.forEach((k,i)=>{tctx.fillStyle=(META[k]||CORE.neutral)[2];tctx.fillRect(W-(tl.length-i)*bw,0,bw+.5,H);});
+}
+/* ---------- Panels ---------- */
+function renderFaces(){
+  const el=$('faceResults');
+  if(!S.faces.length){el.innerHTML='<div class="empty">No face detected. Face the camera with good lighting.</div>';renderSummary();return;}
+  el.innerHTML=S.faces.map((f,i)=>{
+    const a=f.a,m=META[a.key],act=Object.keys(a.ex).filter(k=>a.ex[k]>=.45&&k!==a.key).sort((x,y)=>a.ex[y]-a.ex[x]);
+    const bars=Object.keys(CORE).map(k=>{const v=Math.round(a.core[k]*100);return '<div class="bar"><span>'+CORE[k][0]+' '+CORE[k][1]+'</span><div class="track"><i style="width:'+v+'%;background:'+CORE[k][2]+'"></i></div><span>'+v+'%</span></div>';}).join('');
+    return '<div class="face"><div class="hero"><div class="emoji">'+m[0]+'</div><div><small>Face '+(i+1)+'</small><h3 style="color:'+m[2]+'">'+m[1]+'</h3><small>Confidence '+a.conf+'%</small></div></div><div class="bars">'+bars+'</div>'+
+    (act.length?'<div class="chips">'+act.map(k=>'<span class="chip">'+EXTRA[k][0]+' '+EXTRA[k][1]+' '+Math.round(a.ex[k]*100)+'%</span>').join('')+'</div>':'')+
+    '<div class="meta"><span>Eyes open <b>'+Math.round((f.l+f.r)/2)+'%</b></span><span>Left eye <b>'+f.l+'%</b></span><span>Right eye <b>'+f.r+'%</b></span><span>Blink <b>'+Math.round(a.blink*100)+'%</b></span><span>Mouth open <b>'+Math.round(a.jaw*100)+'%</b></span><span>Smile <b>'+Math.round(a.smile*100)+'%</b></span><span>Brow raise <b>'+Math.round(a.brow*100)+'%</b></span></div></div>';
+  }).join('');
+  renderSummary();
+}
+function renderSummary(){
+  const t=Object.values(S.sess).reduce((a,b)=>a+b,0),keys=Object.keys(S.sess).sort((a,b)=>S.sess[b]-S.sess[a]);
+  $('summary').innerHTML=t?keys.map(k=>'<span class="chip">'+META[k][0]+' '+META[k][1]+' '+Math.round(S.sess[k]/t*100)+'%</span>').join(''):'<span class="empty">Session totals appear once a face is seen.</span>';
+  const used=[...new Set(S.tl)];$('legend').innerHTML=used.map(k=>'<span style="--c:'+META[k][2]+'">'+META[k][1]+'</span>').join('');
+}
+function renderObjects(){
+  $('objectCount').textContent=S.objs.length;
+  $('objectResults').innerHTML=S.objs.length?S.objs.map(o=>'<div class="obj"><span>'+esc(o.class)+'</span><em>'+Math.round(o.score*100)+'%</em><small>Position '+o.bbox.map(n=>Math.round(n)).join(', ')+'</small><div class="track"><i style="width:'+Math.round(o.score*100)+'%;background:linear-gradient(90deg,#f6c453,#ff9f5a)"></i></div></div>').join(''):'<div class="empty">'+($('objectToggle').checked?'No supported objects in this frame.':'Object detection is turned off.')+'</div>';
+}
+/* ---------- Actions ---------- */
+function save(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);}
+function snapshot(){
+  if(!video.videoWidth)return;const c=document.createElement('canvas'),g=geom();c.width=Math.round(S.cw*S.d);c.height=Math.round(S.ch*S.d);const x=c.getContext('2d');
+  x.fillStyle='#04050d';x.fillRect(0,0,c.width,c.height);x.save();
+  if(S.facing==='user'){x.translate(g.ox*S.d+g.dw*S.d,g.oy*S.d);x.scale(-1,1);x.drawImage(video,0,0,g.dw*S.d,g.dh*S.d);}else x.drawImage(video,g.ox*S.d,g.oy*S.d,g.dw*S.d,g.dh*S.d);
+  x.restore();x.drawImage(cv,0,0);
+  c.toBlob(b=>{if(b){save(b,'legend-recognizer-'+Date.now()+'.png');say('Snapshot saved.','ok');}else say('Could not create the snapshot.','error');},'image/png');
+}
+function report(){
+  const t=Object.values(S.sess).reduce((a,b)=>a+b,0);
+  const r={app:'Legend Recognizer',generatedAt:new Date().toISOString(),note:'Emotions and eye openness are estimates from facial geometry, not medical or psychological measurements.',
+    faces:S.faces.map((f,i)=>({face:i+1,emotion:META[f.a.key][1],confidencePercent:f.a.conf,coreScores:Object.fromEntries(Object.keys(f.a.core).map(k=>[k,+f.a.core[k].toFixed(2)])),extraStates:Object.fromEntries(Object.keys(f.a.ex).filter(k=>f.a.ex[k]>0).map(k=>[k,+f.a.ex[k].toFixed(2)])),eyesOpenPercent:{left:f.l,right:f.r}})),
+    objects:S.objs.map(o=>({class:o.class,confidence:+o.score.toFixed(2),boundingBox:o.bbox.map(Math.round)})),
+    sessionEmotionShareFace1:Object.fromEntries(Object.keys(S.sess).map(k=>[META[k][1],t?Math.round(S.sess[k]/t*100)+'%':'0%']))};
+  save(new Blob([JSON.stringify(r,null,2)],{type:'application/json'}),'legend-recognizer-report.json');
+}
+$('startBtn').addEventListener('click',start);
+$('stopBtn').addEventListener('click',()=>stop());
+$('flipBtn').addEventListener('click',flip);
+$('snapBtn').addEventListener('click',snapshot);
+$('repBtn').addEventListener('click',report);
+$('fsBtn').addEventListener('click',()=>{const b=$('cameraBox');if(document.fullscreenElement)document.exitFullscreen();else if(b.requestFullscreen)b.requestFullscreen().catch(()=>say('Fullscreen is not supported here.','error'));else say('Fullscreen is not supported in this browser.','error');});
+$('objectToggle').addEventListener('change',()=>{if(!$('objectToggle').checked){S.objs=[];renderObjects();draw();}});
+$('meshToggle').addEventListener('change',draw);
+$('faceToggle').addEventListener('change',()=>{if($('faceToggle').checked&&S.running){S.paused=false;S.faces=[];}});
+if('ResizeObserver' in window)new ResizeObserver(sizeCanvas).observe($('cameraBox'));
+window.addEventListener('resize',sizeCanvas);document.addEventListener('fullscreenchange',()=>setTimeout(sizeCanvas,100));
+window.addEventListener('pagehide',()=>stop(false));
+sizeCanvas();renderSummary();
+})();
+</script>
+</body>
+</html>
